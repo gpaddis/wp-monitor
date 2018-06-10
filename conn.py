@@ -20,23 +20,41 @@ class WpDatabase():
 
     def create_tables(self):
         """ Create the tables """
-        self.c.execute("""
-            CREATE TABLE IF NOT EXISTS wp_instances (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            server TEXT,
-            wp_path TEXT
-        )""")
-        self.conn.commit()
+        with self.conn:
+            self.c.execute("""
+                CREATE TABLE IF NOT EXISTS wp_instances (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                server TEXT,
+                wp_path TEXT
+            )""")
 
     def insert_instance(self, name, server, wp_path):
-        """ Insert a new Wordpress instance in the database """
-        self.c.execute("""
-            INSERT INTO wp_instances (name, server, wp_path)
-            VALUES (:name, :server, :wp_path)
-            """,
-            { 'name': name, 'server': server, 'wp_path': wp_path})
-        self.conn.commit()
+        """ Insert a new Wordpress instance in the database. """
+        with self.conn:
+            self.c.execute("""
+                INSERT INTO wp_instances (name, server, wp_path)
+                VALUES (:name, :server, :wp_path)
+                """,
+                {'name': name, 'server': server, 'wp_path': wp_path})
+
+    def get_instances(self):
+        """ Return a list containing all instances in the database. """
+        with self.conn:
+            self.c.execute("SELECT * from wp_instances")
+            instances = self.c.fetchall()
+        return [WpInstance(*instance) for instance in instances]
+
+class WpInstance():
+    def __init__(self, key, name, server, wp_path):
+        self.key = key
+        self.name = name
+        self.server = server
+        self.wp_path = wp_path
 
 with WpDatabase('wp-monitor.db') as conn:
-    conn.insert_instance('Testsite', 'Testserver', '/path/1/2/3/4')
+    conn.insert_instance('Testsite', None, '/path/1/2/3/4')
+
+    # for instance in conn.get_instances():
+    #     print instance.name
+    #     print instance.key
