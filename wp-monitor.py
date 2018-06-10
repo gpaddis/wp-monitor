@@ -11,9 +11,11 @@ def add_instance(conn, name, server, wp_path):
 def list_instances(conn):
     """ List all instances with datetime of last_check. """
     instances = conn.get_instances()
+    template = "{0:30} {1:10} {2:20}"
+    print template.format('Name', 'Version', 'Last Checked On ')
     for instance in instances:
         version = conn.get_last_saved_version(instance.key)
-        print "{}: Saved Version: {} Last check on: {}".format(instance.name, version[1], version[2])
+        print template.format(instance.name, version[1], version[2])
 
 def update_instances(conn):
     """ Check the version for all instances and update the database. """
@@ -25,7 +27,6 @@ def update_instances(conn):
 def main():
     with WpDatabase('wp-monitor.db') as conn:
         update_instances(conn)
-        print "Checked the version for all instances and updated the database."
         list_instances(conn)
 
 if __name__ == '__main__':
