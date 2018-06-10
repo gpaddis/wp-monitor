@@ -66,6 +66,7 @@ class WpDatabase():
                 ORDER BY first_check DESC
             """, (instance_id,))
             return self.c.fetchone()
+            # TODO: Return a dictionary?
 
     def update_version(self, instance_id, version):
         """
