@@ -1,5 +1,5 @@
-import re
 import sqlite3
+from instance import WpInstance
 
 
 class WpDatabase():
@@ -47,7 +47,7 @@ class WpDatabase():
                 INSERT INTO wp_instances (name, server, wp_path)
                 VALUES (:name, :server, :wp_path)
                 """,
-                {'name': name, 'server': server, 'wp_path': wp_path})
+                           {'name': name, 'server': server, 'wp_path': wp_path})
 
     def get_instances(self):
         """ Return a list containing all instances in the database. """
@@ -55,31 +55,3 @@ class WpDatabase():
             self.c.execute("SELECT * from wp_instances")
             instances = self.c.fetchall()
         return [WpInstance(*instance) for instance in instances]
-
-class WpInstance():
-    def __init__(self, key, name, server, wp_path):
-        self.key = key
-        self.name = name
-        self.server = server
-        self.wp_path = wp_path
-
-    def check_version(self):
-        """
-        Get the Wordpress version installed in the given path.
-        """
-        try:
-            with open(self.wp_path + '/wp-includes/version.php') as versionfile:
-                content = versionfile.read()
-            match = re.search(r"\$wp_version = \'(.+)\';", content)
-            if match:
-                return match.group(1)
-            else:
-                raise Exception
-        except:
-            "Unable to find Wordpress in the path specified."
-
-with WpDatabase('wp-monitor.db') as conn:
-    conn.insert_instance('LocalWp', None, 'test/wordpress-test')
-
-    for instance in conn.get_instances():
-        print "Name: {} Version: {}".format(instance.name, instance.check_version())

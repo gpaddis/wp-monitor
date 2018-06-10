@@ -1,2 +1,3 @@
 .vscode
 wp-monitor.db
+*.pyc
