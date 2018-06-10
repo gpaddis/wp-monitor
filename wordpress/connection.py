@@ -61,7 +61,7 @@ class WpDatabase():
         """ Get the latest instance version saved in the database. """
         with self.conn:
             self.c.execute("""
-                SELECT id, version FROM wp_instances_versions
+                SELECT id, version, last_check FROM wp_instances_versions
                 WHERE instance_id = ?
                 ORDER BY first_check DESC
             """, (instance_id,))
