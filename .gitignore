@@ -1,3 +1,4 @@
 .vscode
 wp-monitor.db
 *.pyc
+test.py

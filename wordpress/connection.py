@@ -1,4 +1,5 @@
 import sqlite3
+import paramiko
 from datetime import datetime
 from instance import WpInstance
 
@@ -93,3 +94,37 @@ class WpDatabase():
                     SET last_check = ?
                     WHERE id = ?
                 """, (now, last_saved_id))
+
+class SSHClient():
+    """
+    A wrapper around paramiko's SSH client.
+    See: https://gist.github.com/acdha/6064215
+    """
+
+    def __init__(self, host, username):
+        self.host = host
+        self.username = username
+        self.client = paramiko.SSHClient()
+        self.client._policy = paramiko.WarningPolicy()
+        self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    def __enter__(self):
+        self.connect()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.disconnect()
+
+    def connect(self):
+        self.client.connect(self.host, username=self.username)
+
+    def disconnect(self):
+        self.client.close()
+
+    def readfile(self, file_path):
+        try:
+            sftp_client = self.client.open_sftp()
+            remote_file = sftp_client.open(file_path)
+            return remote_file.read()
+        except:
+            return "Unable to read the remote file."
