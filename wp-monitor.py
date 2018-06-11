@@ -4,9 +4,10 @@ from wordpress.connection import WpDatabase
 
 wp_database = 'wp-monitor.db'
 
-def add_instance(conn, name, server, wp_path):
+
+def add_instance(conn, name, wp_path, host=None, user=None):
     """ Insert a new instance in the database. """
-    conn.insert_instance(name, server, wp_path)
+    conn.insert_instance(name, wp_path, host, user)
 
 def list_instances(conn):
     """ List all instances with datetime of last_check. """

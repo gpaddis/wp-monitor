@@ -28,8 +28,9 @@ class WpDatabase():
                 CREATE TABLE IF NOT EXISTS wp_instances (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
-                server TEXT,
-                wp_path TEXT
+                wp_path TEXT,
+                host TEXT,
+                user TEXT
             )""")
 
             self.c.execute("""
@@ -42,14 +43,19 @@ class WpDatabase():
                 FOREIGN KEY (instance_id) REFERENCES wp_instances(id)
             )""")
 
-    def insert_instance(self, name, server, wp_path):
+    def insert_instance(self, name, wp_path, ssh_host=None, ssh_user=None):
         """ Insert a new Wordpress instance in the database. """
         with self.conn:
             self.c.execute("""
-                INSERT INTO wp_instances (name, server, wp_path)
-                VALUES (:name, :server, :wp_path)
+                INSERT INTO wp_instances (name, host, user, wp_path)
+                VALUES (:name, :host, :user, :wp_path)
                 """,
-                {'name': name, 'server': server, 'wp_path': wp_path})
+                {
+                    'name': name,
+                    'host': ssh_host,
+                    'user': ssh_user,
+                    'wp_path': wp_path
+                })
 
     def get_instances(self):
         """ Return a list containing all instances in the database. """
